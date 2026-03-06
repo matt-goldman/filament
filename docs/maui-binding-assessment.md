@@ -290,7 +290,7 @@ The cross-platform library should include a `FilamentView` (MAUI `View` subclass
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseMaui>true</UseMaui>
@@ -299,12 +299,12 @@ The cross-platform library should include a `FilamentView` (MAUI `View` subclass
   </PropertyGroup>
 
   <!-- Android binding reference -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net9.0-android'))">
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net10.0-android'))">
     <ProjectReference Include="..\FilamentBinding.Android\FilamentBinding.Android.csproj" />
   </ItemGroup>
 
   <!-- iOS binding reference -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net9.0-ios'))">
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net10.0-ios'))">
     <ProjectReference Include="..\FilamentBinding.iOS\FilamentBinding.iOS.csproj" />
   </ItemGroup>
 </Project>

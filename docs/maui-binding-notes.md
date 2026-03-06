@@ -141,10 +141,9 @@ These notes supplement the main assessment report (`docs/maui-binding-assessment
 
 1. **Project TFMs to use:**
    ```
-   net9.0-android
-   net9.0-ios
+   net10.0-android
+   net10.0-ios
    ```
-   (or `net8.0-android` / `net8.0-ios` if targeting .NET 8)
 
 2. **`FilamentView` should be a `Microsoft.Maui.Controls.View` subclass** with platform-specific `IViewHandler` implementations:
    - Android handler: Creates `SurfaceView`, wraps `UiHelper`, manages render thread.
