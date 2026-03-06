@@ -1,0 +1,22 @@
+# Build outputs
+obj/
+bin/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Rider
+.idea/
+
+# dotnet-ilverify output
+*.ilk
+
+# Keep the AARs in the repo (they are required inputs to the binding build)
+# Exclude any downloaded/generated artifacts in tmp folders
+/tmp/
