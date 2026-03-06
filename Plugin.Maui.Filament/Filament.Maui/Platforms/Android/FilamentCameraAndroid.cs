@@ -20,7 +20,7 @@ internal sealed class FilamentCameraAndroid : IFilamentCamera
     }
 
     public void SetProjection(double fovDegrees, double aspect, double near, double far) =>
-        _camera.SetProjection(fovDegrees, aspect, near, far, JFilament.Camera.Fov.Vertical);
+        _camera.SetProjection(fovDegrees, aspect, near, far, JFilament.Camera.Fov.Vertical!);
 
     public void LookAt(
         double eyeX,    double eyeY,    double eyeZ,

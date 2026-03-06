@@ -42,7 +42,6 @@ internal sealed class FakeView : IFilamentView
     public void SetScene(IFilamentScene scene) { }
     public void SetCamera(IFilamentCamera camera) { }
     public void SetViewport(int left, int bottom, int width, int height) { }
-    public void SetClearColor(float r, float g, float b, float a) { }
     public void SetPostProcessingEnabled(bool enabled) { }
     public void Dispose() { }
 }
