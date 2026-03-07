@@ -128,7 +128,17 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
     {
         if (!_rendering) return;
         _rendering = false;
+
+        // Capture the last posted callback and unregister it from the Choreographer on the
+        // UI thread before clearing the reference.  This prevents DoFrame from being invoked
+        // at the next vsync even when a frame was already queued before StopRendering ran.
+        var lastCallback = _frameCallback;
         _frameCallback = null;
+        if (lastCallback != null)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+                Choreographer.Instance?.RemoveFrameCallback(lastCallback));
+        }
 
         // Post cleanup work onto the render thread so all Filament resources are destroyed
         // on the same thread they were used on (Filament thread-affinity requirement).
