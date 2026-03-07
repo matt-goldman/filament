@@ -103,12 +103,15 @@ public static class FilamentMaterialLoader
         if (matData is null) throw new ArgumentNullException(nameof(matData));
         if (matData.Length == 0) throw new ArgumentException("Material data must not be empty.", nameof(matData));
 
-        var jEngine = ((FilamentEngineAndroid)engine)._engine;
+        if (engine is not FilamentEngineAndroid androidEngine)
+            throw new ArgumentException("On Android, FilamentMaterialLoader requires a FilamentEngineAndroid instance.", nameof(engine));
+
+        var jEngine = androidEngine._engine;
         var buffer = ByteBuffer.Wrap(matData)!;
         var material = new JFilament.Material.Builder()
             .Payload(buffer, matData.Length)
             .Build(jEngine)
             ?? throw new InvalidOperationException("Material.Builder.Build() returned null.");
-        return new FilamentMaterialAndroid(material, (FilamentEngineAndroid)engine);
+        return new FilamentMaterialAndroid(material, androidEngine);
     }
 }
