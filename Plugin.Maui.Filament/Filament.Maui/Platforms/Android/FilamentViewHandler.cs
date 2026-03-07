@@ -96,8 +96,20 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
 
             // If the native window surface became available before the Engine was set,
             // create the SwapChain now that we have both a surface and an engine.
+            // Destroy any pre-existing SwapChain first: the surface callback's CreateChain()
+            // may have already run on this render thread before this lambda executed, in which
+            // case _swapChain is non-null and must be freed before we overwrite the reference.
             if (pendingSurface != null)
+            {
+                if (_swapChain != null)
+                {
+                    var ownerEngine = (_swapChain as FilamentSwapChainAndroid)?.Engine ?? engine;
+                    ownerEngine.FlushAndWait();
+                    ownerEngine.DestroySwapChain(_swapChain);
+                    _swapChain = null;
+                }
                 _swapChain = engine.CreateSwapChain(pendingSurface);
+            }
         });
 
         // Kick off the first vsync-aligned frame
