@@ -34,6 +34,7 @@ internal sealed class FilamentSkyboxAndroid : IFilamentSkybox
 {
     internal readonly JFilament.Skybox _skybox;
     private readonly FilamentEngineAndroid _ownerEngine;
+    private bool _disposed;
 
     internal FilamentSkyboxAndroid(JFilament.Skybox skybox, FilamentEngineAndroid ownerEngine)
     {
@@ -41,7 +42,12 @@ internal sealed class FilamentSkyboxAndroid : IFilamentSkybox
         _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
     }
 
-    public void Dispose() => _ownerEngine._engine.DestroySkybox(_skybox);
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        _ownerEngine._engine.DestroySkybox(_skybox);
+    }
 }
 
 /// <summary>Android implementation of <see cref="IFilamentIndirectLight"/>.</summary>
@@ -49,6 +55,7 @@ internal sealed class FilamentIndirectLightAndroid : IFilamentIndirectLight
 {
     internal readonly JFilament.IndirectLight _ibl;
     private readonly FilamentEngineAndroid _ownerEngine;
+    private bool _disposed;
 
     internal FilamentIndirectLightAndroid(JFilament.IndirectLight ibl, FilamentEngineAndroid ownerEngine)
     {
@@ -56,5 +63,10 @@ internal sealed class FilamentIndirectLightAndroid : IFilamentIndirectLight
         _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
     }
 
-    public void Dispose() => _ownerEngine._engine.DestroyIndirectLight(_ibl);
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        _ownerEngine._engine.DestroyIndirectLight(_ibl);
+    }
 }
