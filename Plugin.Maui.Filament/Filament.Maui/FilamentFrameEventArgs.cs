@@ -8,9 +8,10 @@ namespace Filament.Maui;
 public sealed class FilamentFrameEventArgs : EventArgs
 {
     /// <summary>
-    /// The active renderer for the current frame.
-    /// Valid only between <see cref="IFilamentRenderer.BeginFrame"/> and
-    /// <see cref="IFilamentRenderer.EndFrame"/>.
+    /// The active renderer associated with the current frame.
+    /// Exposed to <see cref="FilamentView.FrameRendering"/> handlers before
+    /// <see cref="IFilamentRenderer.BeginFrame"/> is called so callers can
+    /// configure per-frame state (for example, clear color) prior to rendering.
     /// </summary>
     public IFilamentRenderer Renderer { get; }
 
