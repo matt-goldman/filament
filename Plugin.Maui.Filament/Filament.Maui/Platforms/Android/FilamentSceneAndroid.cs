@@ -33,16 +33,28 @@ internal sealed class FilamentSceneAndroid : IFilamentScene
 internal sealed class FilamentSkyboxAndroid : IFilamentSkybox
 {
     internal readonly JFilament.Skybox _skybox;
-    internal FilamentSkyboxAndroid(JFilament.Skybox skybox) =>
+    private readonly FilamentEngineAndroid _ownerEngine;
+
+    internal FilamentSkyboxAndroid(JFilament.Skybox skybox, FilamentEngineAndroid ownerEngine)
+    {
         _skybox = skybox ?? throw new ArgumentNullException(nameof(skybox));
-    public void Dispose() { }
+        _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
+    }
+
+    public void Dispose() => _ownerEngine._engine.DestroySkybox(_skybox);
 }
 
 /// <summary>Android implementation of <see cref="IFilamentIndirectLight"/>.</summary>
 internal sealed class FilamentIndirectLightAndroid : IFilamentIndirectLight
 {
     internal readonly JFilament.IndirectLight _ibl;
-    internal FilamentIndirectLightAndroid(JFilament.IndirectLight ibl) =>
+    private readonly FilamentEngineAndroid _ownerEngine;
+
+    internal FilamentIndirectLightAndroid(JFilament.IndirectLight ibl, FilamentEngineAndroid ownerEngine)
+    {
         _ibl = ibl ?? throw new ArgumentNullException(nameof(ibl));
-    public void Dispose() { }
+        _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
+    }
+
+    public void Dispose() => _ownerEngine._engine.DestroyIndirectLight(_ibl);
 }

@@ -4,14 +4,14 @@ namespace Filament.Maui;
 
 /// <summary>
 /// Extension methods for <see cref="MauiAppBuilder"/> to register Filament services
-/// and platform handlers.
+/// and platform handlers for supported platforms (currently Android).
 /// </summary>
 public static class FilamentMauiAppBuilderExtensions
 {
     /// <summary>
     /// Registers the <see cref="FilamentView"/> platform handler so that
-    /// <see cref="FilamentView"/> controls render correctly on Android and iOS.
-    /// Call this in <c>MauiProgram.cs</c>:
+    /// <see cref="FilamentView"/> controls render correctly on supported platforms
+    /// (currently Android). Call this in <c>MauiProgram.cs</c>:
     /// <code>
     /// builder.UseFilament();
     /// </code>

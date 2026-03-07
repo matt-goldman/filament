@@ -95,6 +95,36 @@ internal sealed class FilamentEngineAndroid : IFilamentEngine
         _engine.DestroySwapChain(((FilamentSwapChainAndroid)swapChain)._swapChain);
     }
 
+    public void DestroyMaterial(IFilamentMaterial material)
+    {
+        ThrowIfDisposed();
+        _engine.DestroyMaterial(((FilamentMaterialAndroid)material)._material);
+    }
+
+    public void DestroyMaterialInstance(IFilamentMaterialInstance instance)
+    {
+        ThrowIfDisposed();
+        _engine.DestroyMaterialInstance(((FilamentMaterialInstanceAndroid)instance)._instance);
+    }
+
+    public void DestroyTexture(IFilamentTexture texture)
+    {
+        ThrowIfDisposed();
+        _engine.DestroyTexture(((FilamentTextureAndroid)texture)._texture);
+    }
+
+    public void DestroySkybox(IFilamentSkybox skybox)
+    {
+        ThrowIfDisposed();
+        _engine.DestroySkybox(((FilamentSkyboxAndroid)skybox)._skybox);
+    }
+
+    public void DestroyIndirectLight(IFilamentIndirectLight ibl)
+    {
+        ThrowIfDisposed();
+        _engine.DestroyIndirectLight(((FilamentIndirectLightAndroid)ibl)._ibl);
+    }
+
     public void FlushAndWait()
     {
         ThrowIfDisposed();
@@ -105,6 +135,8 @@ internal sealed class FilamentEngineAndroid : IFilamentEngine
     {
         if (_disposed) return;
         _disposed = true;
+        // Properly tear down the native Filament engine before releasing the JNI peer.
+        _engine.Destroy();
         _engine.Dispose();
     }
 
