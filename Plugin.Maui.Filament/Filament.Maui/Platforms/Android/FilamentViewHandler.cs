@@ -25,6 +25,9 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
     private volatile bool _rendering;
     // Reused across frames to avoid per-frame managed + JNI allocations.
     private FrameCallback? _frameCallback;
+    // Cached native window surface so the SwapChain can be created when the Engine
+    // is assigned after the surface has already become available.
+    private Surface? _pendingSurface;
 
     /// <summary>Property mapper for the <see cref="FilamentView"/> virtual view.</summary>
     public static readonly IPropertyMapper<FilamentView, FilamentViewHandler> Mapper =
@@ -78,6 +81,18 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         _renderThread.Start();
         _renderHandler = new Android.OS.Handler(_renderThread.Looper!);
         _rendering = true;
+
+        // If the native window surface became available before the Engine was set,
+        // create the SwapChain now that we have both a surface and an engine.
+        var pendingSurface = _pendingSurface;
+        if (pendingSurface != null)
+        {
+            _renderHandler.Post(() =>
+            {
+                if (ReferenceEquals(_currentEngine, engine))
+                    _swapChain = engine.CreateSwapChain(pendingSurface);
+            });
+        }
 
         // Kick off the first vsync-aligned frame
         ScheduleNextFrame();
@@ -226,12 +241,17 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
 
         /// <summary>
         /// Called when the native window surface becomes available (UI thread).
-        /// Marshals swapchain creation onto the render thread when rendering is active;
-        /// creates it directly on the calling thread otherwise.
+        /// Caches the surface so that the SwapChain can be created even if the Engine was
+        /// not yet assigned when this callback fired. Marshals swapchain creation onto the
+        /// render thread when rendering is active.
         /// </summary>
         public void OnNativeWindowChanged(Surface? p0)
         {
             var surface = p0;
+            // Always cache the latest surface so StartRendering can pick it up if the
+            // Engine is assigned after this callback fires.
+            _handler._pendingSurface = surface;
+
             var engineAtCallback = _handler.VirtualView?.Engine;
             if (engineAtCallback is null || surface is null) return;
 
@@ -260,10 +280,15 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
 
         /// <summary>
         /// Called when the native window surface is destroyed (UI thread).
-        /// Marshals swapchain destruction onto the render thread when rendering is active.
+        /// Clears the cached surface and marshals swapchain destruction onto the render thread
+        /// when rendering is active.
         /// </summary>
         public void OnDetachedFromSurface()
         {
+            // Clear the cached surface so StartRendering does not try to create a
+            // SwapChain against a destroyed surface.
+            _handler._pendingSurface = null;
+
             void DestroyChain()
             {
                 var swapChain = _handler._swapChain;
@@ -289,11 +314,15 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         /// </summary>
         public void OnResized(int width, int height)
         {
-            var engine = _handler.VirtualView?.Engine;
+            var engineAtCallback = _handler.VirtualView?.Engine;
 
             void UpdateViewport()
             {
-                if (engine is FilamentEngineAndroid androidEngine)
+                // Guard: bail out if the engine changed between when this was posted and
+                // when it actually runs on the render thread.
+                if (!ReferenceEquals(_handler._currentEngine, engineAtCallback)) return;
+
+                if (engineAtCallback is FilamentEngineAndroid androidEngine)
                 {
                     FilamentHelper.SynchronizePendingFrames(androidEngine._engine);
                 }

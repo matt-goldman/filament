@@ -21,6 +21,11 @@ internal sealed class FakeEngine : IFilamentEngine
     public void DestroyView(IFilamentView view) { }
     public void DestroyCamera(IFilamentCamera camera) { }
     public void DestroySwapChain(IFilamentSwapChain swapChain) { }
+    public void DestroyMaterial(IFilamentMaterial material) { }
+    public void DestroyMaterialInstance(IFilamentMaterialInstance instance) { }
+    public void DestroyTexture(IFilamentTexture texture) { }
+    public void DestroySkybox(IFilamentSkybox skybox) { }
+    public void DestroyIndirectLight(IFilamentIndirectLight ibl) { }
     public void FlushAndWait() { }
     public void Dispose() { }
 }

@@ -50,6 +50,21 @@ public interface IFilamentEngine : IDisposable
     /// <summary>Destroys a SwapChain created by this engine.</summary>
     void DestroySwapChain(IFilamentSwapChain swapChain);
 
+    /// <summary>Destroys a Material created by this engine.</summary>
+    void DestroyMaterial(IFilamentMaterial material);
+
+    /// <summary>Destroys a MaterialInstance created by this engine.</summary>
+    void DestroyMaterialInstance(IFilamentMaterialInstance instance);
+
+    /// <summary>Destroys a Texture created by this engine.</summary>
+    void DestroyTexture(IFilamentTexture texture);
+
+    /// <summary>Destroys a Skybox created by this engine.</summary>
+    void DestroySkybox(IFilamentSkybox skybox);
+
+    /// <summary>Destroys an IndirectLight created by this engine.</summary>
+    void DestroyIndirectLight(IFilamentIndirectLight ibl);
+
     /// <summary>
     /// Blocks until all pending GPU work is complete.
     /// Must be called before resizing or destroying resources to prevent in-flight frame corruption.

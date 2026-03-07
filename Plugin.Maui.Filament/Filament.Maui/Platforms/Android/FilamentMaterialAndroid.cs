@@ -10,18 +10,22 @@ namespace Filament.Maui;
 internal sealed class FilamentMaterialAndroid : IFilamentMaterial
 {
     internal readonly JFilament.Material _material;
+    private readonly FilamentEngineAndroid _ownerEngine;
 
-    internal FilamentMaterialAndroid(JFilament.Material material) =>
+    internal FilamentMaterialAndroid(JFilament.Material material, FilamentEngineAndroid ownerEngine)
+    {
         _material = material ?? throw new ArgumentNullException(nameof(material));
+        _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
+    }
 
     public IFilamentMaterialInstance CreateInstance()
     {
         var instance = _material.CreateInstance()
             ?? throw new InvalidOperationException("Material.CreateInstance() returned null.");
-        return new FilamentMaterialInstanceAndroid(instance);
+        return new FilamentMaterialInstanceAndroid(instance, _ownerEngine);
     }
 
-    public void Dispose() => _material.Dispose();
+    public void Dispose() => _ownerEngine._engine.DestroyMaterial(_material);
 }
 
 /// <summary>
@@ -31,13 +35,17 @@ internal sealed class FilamentMaterialAndroid : IFilamentMaterial
 internal sealed class FilamentMaterialInstanceAndroid : IFilamentMaterialInstance
 {
     internal readonly JFilament.MaterialInstance _instance;
+    private readonly FilamentEngineAndroid _ownerEngine;
 
     // Reuse a default sampler for this instance to avoid per-call allocation on hot paths
     // (e.g. per-frame material updates). Instance-level to avoid cross-thread mutability concerns.
     private readonly JFilament.TextureSampler _defaultSampler = new JFilament.TextureSampler();
 
-    internal FilamentMaterialInstanceAndroid(JFilament.MaterialInstance instance) =>
+    internal FilamentMaterialInstanceAndroid(JFilament.MaterialInstance instance, FilamentEngineAndroid ownerEngine)
+    {
         _instance = instance ?? throw new ArgumentNullException(nameof(instance));
+        _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
+    }
 
     public void SetParameterFloat(string name, float value) =>
         _instance.SetParameter(name, value);
@@ -51,7 +59,7 @@ internal sealed class FilamentMaterialInstanceAndroid : IFilamentMaterialInstanc
             ((FilamentTextureAndroid)texture)._texture,
             _defaultSampler);
 
-    public void Dispose() => _instance.Dispose();
+    public void Dispose() => _ownerEngine._engine.DestroyMaterialInstance(_instance);
 }
 
 /// <summary>
@@ -61,11 +69,15 @@ internal sealed class FilamentMaterialInstanceAndroid : IFilamentMaterialInstanc
 internal sealed class FilamentTextureAndroid : IFilamentTexture
 {
     internal readonly JFilament.Texture _texture;
+    private readonly FilamentEngineAndroid _ownerEngine;
 
-    internal FilamentTextureAndroid(JFilament.Texture texture) =>
+    internal FilamentTextureAndroid(JFilament.Texture texture, FilamentEngineAndroid ownerEngine)
+    {
         _texture = texture ?? throw new ArgumentNullException(nameof(texture));
+        _ownerEngine = ownerEngine ?? throw new ArgumentNullException(nameof(ownerEngine));
+    }
 
-    public void Dispose() => _texture.Dispose();
+    public void Dispose() => _ownerEngine._engine.DestroyTexture(_texture);
 }
 
 /// <summary>
@@ -97,6 +109,6 @@ public static class FilamentMaterialLoader
             .Payload(buffer, matData.Length)
             .Build(jEngine)
             ?? throw new InvalidOperationException("Material.Builder.Build() returned null.");
-        return new FilamentMaterialAndroid(material);
+        return new FilamentMaterialAndroid(material, (FilamentEngineAndroid)engine);
     }
 }
