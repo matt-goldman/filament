@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Filament.Maui.Tests/Filament.Maui.Tests.csproj" />
+  <Project Path="Filament.Maui/Filament.Maui.csproj" />
+  <Project Path="FilamentBinding.Android/FilamentBinding.Android.csproj" />
+</Solution>
