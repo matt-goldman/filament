@@ -20,7 +20,9 @@ public static class FilamentMauiAppBuilderExtensions
     {
         builder.ConfigureMauiHandlers(handlers =>
         {
+#if ANDROID
             handlers.AddHandler<FilamentView, FilamentViewHandler>();
+#endif
         });
         return builder;
     }

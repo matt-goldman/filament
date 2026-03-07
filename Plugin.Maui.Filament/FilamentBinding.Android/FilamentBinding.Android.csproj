@@ -8,15 +8,15 @@
 
   <ItemGroup>
     <!-- Core rendering engine (required) -->
-    <LibraryProjectZip Include="Jars\filament-android-1.69.5.aar" />
+    <LibraryProjectZip Include="Jars/filament-android-1.69.5.aar" />
     <!-- glTF 2.0 loader (optional) -->
-    <LibraryProjectZip Include="Jars\gltfio-android-1.69.5.aar"
-                       Condition="Exists('Jars\gltfio-android-1.69.5.aar')" />
+    <LibraryProjectZip Include="Jars/gltfio-android-1.69.5.aar"
+                       Condition="Exists('Jars/gltfio-android-1.69.5.aar')" />
     <!-- Runtime material compiler (optional) -->
-    <LibraryProjectZip Include="Jars\filamat-android-1.69.5.aar"
-                       Condition="Exists('Jars\filamat-android-1.69.5.aar')" />
+    <LibraryProjectZip Include="Jars/filamat-android-1.69.5.aar"
+                       Condition="Exists('Jars/filamat-android-1.69.5.aar')" />
     <!-- Camera utilities / IBL preprocessing (optional) -->
-    <LibraryProjectZip Include="Jars\filament-utils-android-1.69.5.aar"
-                       Condition="Exists('Jars\filament-utils-android-1.69.5.aar')" />
+    <LibraryProjectZip Include="Jars/filament-utils-android-1.69.5.aar"
+                       Condition="Exists('Jars/filament-utils-android-1.69.5.aar')" />
   </ItemGroup>
 </Project>

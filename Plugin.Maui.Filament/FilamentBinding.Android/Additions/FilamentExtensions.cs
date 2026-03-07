@@ -15,7 +15,9 @@ public static class MaterialExtensions
     /// <param name="builder">The material builder instance.</param>
     /// <param name="engine">The Filament engine to build the material for.</param>
     /// <param name="materialData">
-    /// Compiled .mat file bytes — must be compiled for the target backend (OpenGL/Vulkan).
+    /// Compiled Filament material bytes (<c>.filamat</c>) — must target the Android backend
+    /// (OpenGL/Vulkan). Use the <c>matc</c> tool to compile <c>.mat</c> source files into
+    /// <c>.filamat</c> binaries.
     /// </param>
     /// <returns>The built <see cref="Material"/>, or null if the data is invalid.</returns>
     public static Material? BuildFromBytes(

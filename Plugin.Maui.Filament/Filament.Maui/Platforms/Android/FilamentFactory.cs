@@ -8,6 +8,7 @@ namespace Filament.Maui;
 /// </summary>
 public static class FilamentFactory
 {
+    private static readonly object _initLock = new();
     private static bool _initialized;
 
     /// <summary>
@@ -17,10 +18,13 @@ public static class FilamentFactory
     /// <returns>A new engine instance. The caller is responsible for disposing it.</returns>
     public static IFilamentEngine CreateEngine()
     {
-        if (!_initialized)
+        lock (_initLock)
         {
-            Com.Google.Android.Filament.Filament.Init();
-            _initialized = true;
+            if (!_initialized)
+            {
+                Com.Google.Android.Filament.Filament.Init();
+                _initialized = true;
+            }
         }
         var javaEngine = Engine.Create()
             ?? throw new InvalidOperationException("Filament Engine.Create() returned null.");
