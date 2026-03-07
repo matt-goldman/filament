@@ -53,17 +53,9 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         // No-op if the engine hasn't actually changed.
         if (ReferenceEquals(newEngine, handler._currentEngine)) return;
 
-        // Tear down the previous engine's resources.  Capture the engine reference
-        // before StopRendering() nulls _currentEngine so we can destroy the swapchain
-        // with the correct owner.
-        var oldEngine = handler._currentEngine;
+        // StopRendering destroys the swapchain, renderer and view on the render thread
+        // (Filament thread-affinity requirement) before quitting the HandlerThread.
         handler.StopRendering();
-        if (oldEngine is not null && handler._swapChain != null)
-        {
-            oldEngine.FlushAndWait();
-            oldEngine.DestroySwapChain(handler._swapChain);
-            handler._swapChain = null;
-        }
 
         if (newEngine is not null)
             handler.StartRendering(newEngine);
@@ -117,8 +109,8 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         _rendering = false;
         _frameCallback = null;
 
-        // Post cleanup work onto the render thread so renderer/view are destroyed on the
-        // same thread they were used on (Filament thread-affinity requirement).
+        // Post cleanup work onto the render thread so all Filament resources are destroyed
+        // on the same thread they were used on (Filament thread-affinity requirement).
         using var done = new ManualResetEventSlim(false);
         _renderHandler?.Post(() =>
         {
@@ -126,6 +118,14 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
             if (engine is not null)
             {
                 engine.FlushAndWait();
+                // Destroy the swapchain on the render thread (must match the thread used
+                // for rendering and the engine that created it).
+                if (_swapChain != null)
+                {
+                    var ownerEngine = (_swapChain as FilamentSwapChainAndroid)?.Engine ?? engine;
+                    ownerEngine.DestroySwapChain(_swapChain);
+                    _swapChain = null;
+                }
                 if (_renderer != null)
                 {
                     engine.DestroyRenderer(_renderer);
@@ -159,26 +159,9 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
     /// <inheritdoc />
     protected override void DisconnectHandler(SurfaceView platformView)
     {
-        // Capture the engine that owns the swapchain BEFORE StopRendering() nulls
-        // _currentEngine, so we can always destroy the swapchain via its creator.
-        var swapChainEngine = (_swapChain as FilamentSwapChainAndroid)?.Engine;
-        if (swapChainEngine is null && _swapChain is not null)
-        {
-            System.Diagnostics.Debug.WriteLine(
-                "[FilamentViewHandler] DisconnectHandler: swapchain is not a FilamentSwapChainAndroid; " +
-                "falling back to _currentEngine for destruction.");
-            swapChainEngine = _currentEngine;
-        }
-
-        // StopRendering waits for in-flight frames and destroys renderer/view on the render thread.
+        // StopRendering destroys the swapchain, renderer and view on the render thread
+        // before quitting the HandlerThread, satisfying Filament's thread-affinity requirement.
         StopRendering();
-
-        if (swapChainEngine is not null && _swapChain != null)
-        {
-            swapChainEngine.FlushAndWait();
-            swapChainEngine.DestroySwapChain(_swapChain);
-            _swapChain = null;
-        }
 
         _uiHelper?.Detach();
         _uiHelper = null;
@@ -249,19 +232,23 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         public void OnNativeWindowChanged(Surface? p0)
         {
             var surface = p0;
-            var engine = _handler.VirtualView?.Engine;
-            if (engine is null || surface is null) return;
+            var engineAtCallback = _handler.VirtualView?.Engine;
+            if (engineAtCallback is null || surface is null) return;
 
             void CreateChain()
             {
+                // Guard: bail out if the engine changed between when this was posted and
+                // when it actually runs on the render thread.
+                if (!ReferenceEquals(_handler._currentEngine, engineAtCallback)) return;
+
                 if (_handler._swapChain != null)
                 {
                     // Destroy via the engine that originally created the swapchain.
-                    var ownerEngine = (_handler._swapChain as FilamentSwapChainAndroid)?.Engine ?? engine;
+                    var ownerEngine = (_handler._swapChain as FilamentSwapChainAndroid)?.Engine ?? engineAtCallback;
                     ownerEngine.FlushAndWait();
                     ownerEngine.DestroySwapChain(_handler._swapChain);
                 }
-                _handler._swapChain = engine.CreateSwapChain(surface);
+                _handler._swapChain = engineAtCallback.CreateSwapChain(surface);
             }
 
             var renderHandler = _handler._renderHandler;

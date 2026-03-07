@@ -32,6 +32,10 @@ internal sealed class FilamentMaterialInstanceAndroid : IFilamentMaterialInstanc
 {
     internal readonly JFilament.MaterialInstance _instance;
 
+    // Reuse a default sampler for this instance to avoid per-call allocation on hot paths
+    // (e.g. per-frame material updates). Instance-level to avoid cross-thread mutability concerns.
+    private readonly JFilament.TextureSampler _defaultSampler = new JFilament.TextureSampler();
+
     internal FilamentMaterialInstanceAndroid(JFilament.MaterialInstance instance) =>
         _instance = instance ?? throw new ArgumentNullException(nameof(instance));
 
@@ -45,7 +49,7 @@ internal sealed class FilamentMaterialInstanceAndroid : IFilamentMaterialInstanc
         _instance.SetParameter(
             name,
             ((FilamentTextureAndroid)texture)._texture,
-            new JFilament.TextureSampler());
+            _defaultSampler);
 
     public void Dispose() => _instance.Dispose();
 }
