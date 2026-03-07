@@ -140,33 +140,40 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
                 Choreographer.Instance?.RemoveFrameCallback(lastCallback));
         }
 
+        // Capture all Filament resources into locals before posting the cleanup lambda.
+        // This guarantees cleanup runs with the correct references even if the 500 ms timeout
+        // fires before the lambda begins executing and instance fields are subsequently cleared
+        // by a racing StartRendering call or the null-out at the bottom of this method.
+        var engine = _currentEngine;
+        var swapChain = _swapChain;
+        var renderer = _renderer;
+        var filamentView = _filamentView;
+
+        // Clear instance fields now so concurrent readers (e.g. FrameCallback, which already
+        // sees _rendering == false) observe a consistent "stopped" state immediately.
+        _swapChain = null;
+        _renderer = null;
+        _filamentView = null;
+
         // Post cleanup work onto the render thread so all Filament resources are destroyed
         // on the same thread they were used on (Filament thread-affinity requirement).
         using var done = new ManualResetEventSlim(false);
         _renderHandler?.Post(() =>
         {
-            var engine = _currentEngine;
             if (engine is not null)
             {
                 engine.FlushAndWait();
                 // Destroy the swapchain on the render thread (must match the thread used
                 // for rendering and the engine that created it).
-                if (_swapChain != null)
+                if (swapChain != null)
                 {
-                    var ownerEngine = (_swapChain as FilamentSwapChainAndroid)?.Engine ?? engine;
-                    ownerEngine.DestroySwapChain(_swapChain);
-                    _swapChain = null;
+                    var ownerEngine = (swapChain as FilamentSwapChainAndroid)?.Engine ?? engine;
+                    ownerEngine.DestroySwapChain(swapChain);
                 }
-                if (_renderer != null)
-                {
-                    engine.DestroyRenderer(_renderer);
-                    _renderer = null;
-                }
-                if (_filamentView != null)
-                {
-                    engine.DestroyView(_filamentView);
-                    _filamentView = null;
-                }
+                if (renderer != null)
+                    engine.DestroyRenderer(renderer);
+                if (filamentView != null)
+                    engine.DestroyView(filamentView);
             }
             done.Set();
         });
