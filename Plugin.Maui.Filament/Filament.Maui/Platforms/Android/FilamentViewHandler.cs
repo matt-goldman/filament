@@ -71,8 +71,6 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         StopRendering();
 
         _currentEngine = engine;
-        _renderer = engine.CreateRenderer();
-        _filamentView = engine.CreateView();
 
         // Create the reusable frame callback once per render session.
         _frameCallback = new FrameCallback(this);
@@ -82,17 +80,25 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         _renderHandler = new Android.OS.Handler(_renderThread.Looper!);
         _rendering = true;
 
-        // If the native window surface became available before the Engine was set,
-        // create the SwapChain now that we have both a surface and an engine.
+        // All Filament resource creation must happen on the dedicated render thread to satisfy
+        // Filament's thread-affinity requirement. Capture the pending surface before posting so
+        // we use the surface that was current at the moment StartRendering was called.
+        // The FrameCallback null-checks _renderer, _filamentView and _swapChain before rendering,
+        // so frames are gracefully skipped until these resources are ready.
         var pendingSurface = _pendingSurface;
-        if (pendingSurface != null)
+        _renderHandler.Post(() =>
         {
-            _renderHandler.Post(() =>
-            {
-                if (ReferenceEquals(_currentEngine, engine))
-                    _swapChain = engine.CreateSwapChain(pendingSurface);
-            });
-        }
+            // Guard: bail out if the engine was replaced between the Post and execution.
+            if (!ReferenceEquals(_currentEngine, engine)) return;
+
+            _renderer = engine.CreateRenderer();
+            _filamentView = engine.CreateView();
+
+            // If the native window surface became available before the Engine was set,
+            // create the SwapChain now that we have both a surface and an engine.
+            if (pendingSurface != null)
+                _swapChain = engine.CreateSwapChain(pendingSurface);
+        });
 
         // Kick off the first vsync-aligned frame
         ScheduleNextFrame();
