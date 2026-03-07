@@ -17,6 +17,12 @@ internal sealed class FilamentSwapChainAndroid : IFilamentSwapChain
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
     }
 
+    /// <summary>
+    /// Returns the <see cref="IFilamentEngine"/> that owns this swap chain.
+    /// Always destroy a swap chain via the same engine that created it.
+    /// </summary>
+    internal IFilamentEngine Engine => _engine;
+
     /// <remarks>Destroyed via <see cref="IFilamentEngine.DestroySwapChain"/>.</remarks>
     public void Dispose() { }
 }
