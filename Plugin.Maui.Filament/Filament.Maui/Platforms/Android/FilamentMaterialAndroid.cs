@@ -70,13 +70,15 @@ internal sealed class FilamentTextureAndroid : IFilamentTexture
 public static class FilamentMaterialLoader
 {
     /// <summary>
-    /// Creates a <see cref="IFilamentMaterial"/> from a precompiled <c>.mat</c> file
-    /// loaded as a byte array (e.g., from Android Assets via <c>AssetManager</c>).
+    /// Creates a <see cref="IFilamentMaterial"/> from a compiled Filament material binary
+    /// (<c>.filamat</c> file) loaded as a byte array (e.g., from Android Assets via
+    /// <c>AssetManager</c>).
     /// </summary>
     /// <param name="engine">The Filament engine to build the material for.</param>
     /// <param name="matData">
-    /// Precompiled material bytes — must target the Android backend (OpenGL/Vulkan).
-    /// Use the <c>matc</c> tool to compile <c>.matc</c> source files.
+    /// Bytes of a compiled Filament material (<c>.filamat</c>) — must target the Android
+    /// backend (OpenGL/Vulkan). Use the <c>matc</c> tool to compile <c>.mat</c> source
+    /// files into <c>.filamat</c> binaries.
     /// </param>
     /// <returns>A new <see cref="IFilamentMaterial"/> owned by the caller.</returns>
     public static IFilamentMaterial LoadMaterial(IFilamentEngine engine, byte[] matData)

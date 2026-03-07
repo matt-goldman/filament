@@ -29,10 +29,16 @@ internal sealed class FilamentRendererAndroid : IFilamentRenderer
     public void EndFrame() =>
         _renderer.EndFrame();
 
+    private readonly float[] _clearColor = new float[4];
+
     public void SetClearColor(float r, float g, float b, float a)
     {
+        _clearColor[0] = r;
+        _clearColor[1] = g;
+        _clearColor[2] = b;
+        _clearColor[3] = a;
         var opts = _renderer.GetClearOptions();
-        opts.ClearColor = new float[] { r, g, b, a };
+        opts.ClearColor = _clearColor;
         opts.Clear = true;
         _renderer.SetClearOptions(opts);
     }
