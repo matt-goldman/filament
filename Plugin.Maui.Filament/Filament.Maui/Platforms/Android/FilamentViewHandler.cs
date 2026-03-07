@@ -259,7 +259,9 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
         /// Called when the native window surface becomes available (UI thread).
         /// Caches the surface so that the SwapChain can be created even if the Engine was
         /// not yet assigned when this callback fired. Marshals swapchain creation onto the
-        /// render thread when rendering is active.
+        /// render thread; if the render thread is not yet running the cached surface will
+        /// be picked up by <see cref="FilamentViewHandler.StartRendering"/> when the Engine
+        /// is later assigned.
         /// </summary>
         public void OnNativeWindowChanged(Surface? p0)
         {
@@ -271,7 +273,13 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
             var engineAtCallback = _handler.VirtualView?.Engine;
             if (engineAtCallback is null || surface is null) return;
 
-            void CreateChain()
+            // Only post to the render thread when one is running. If _renderHandler is
+            // null the render thread has not started yet; StartRendering will create the
+            // SwapChain from _pendingSurface when the Engine is eventually assigned.
+            var renderHandler = _handler._renderHandler;
+            if (renderHandler is null) return;
+
+            renderHandler.Post(() =>
             {
                 // Guard: bail out if the engine changed between when this was posted and
                 // when it actually runs on the render thread.
@@ -285,19 +293,13 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
                     ownerEngine.DestroySwapChain(_handler._swapChain);
                 }
                 _handler._swapChain = engineAtCallback.CreateSwapChain(surface);
-            }
-
-            var renderHandler = _handler._renderHandler;
-            if (renderHandler != null)
-                renderHandler.Post(CreateChain);
-            else
-                CreateChain();
+            });
         }
 
         /// <summary>
         /// Called when the native window surface is destroyed (UI thread).
-        /// Clears the cached surface and marshals swapchain destruction onto the render thread
-        /// when rendering is active.
+        /// Clears the cached surface and marshals swapchain destruction onto the render thread.
+        /// If the render thread is not running there is no SwapChain to destroy.
         /// </summary>
         public void OnDetachedFromSurface()
         {
@@ -305,7 +307,12 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
             // SwapChain against a destroyed surface.
             _handler._pendingSurface = null;
 
-            void DestroyChain()
+            // Only post to the render thread when one is running. If _renderHandler is
+            // null there is no render thread and therefore no SwapChain to destroy.
+            var renderHandler = _handler._renderHandler;
+            if (renderHandler is null) return;
+
+            renderHandler.Post(() =>
             {
                 var swapChain = _handler._swapChain;
                 if (swapChain is null) return;
@@ -315,24 +322,24 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
                 ownerEngine.FlushAndWait();
                 ownerEngine.DestroySwapChain(swapChain);
                 _handler._swapChain = null;
-            }
-
-            var renderHandler = _handler._renderHandler;
-            if (renderHandler != null)
-                renderHandler.Post(DestroyChain);
-            else
-                DestroyChain();
+            });
         }
 
         /// <summary>
         /// Called when the surface is resized (UI thread).
-        /// Marshals the viewport update onto the render thread when rendering is active.
+        /// Marshals the viewport update onto the render thread. If the render thread is
+        /// not yet running there is no <see cref="IFilamentView"/> to update.
         /// </summary>
         public void OnResized(int width, int height)
         {
             var engineAtCallback = _handler.VirtualView?.Engine;
 
-            void UpdateViewport()
+            // Only post to the render thread when one is running. If _renderHandler is
+            // null there is no render thread and therefore no IFilamentView to update.
+            var renderHandler = _handler._renderHandler;
+            if (renderHandler is null) return;
+
+            renderHandler.Post(() =>
             {
                 // Guard: bail out if the engine changed between when this was posted and
                 // when it actually runs on the render thread.
@@ -343,13 +350,7 @@ public partial class FilamentViewHandler : ViewHandler<FilamentView, SurfaceView
                     FilamentHelper.SynchronizePendingFrames(androidEngine._engine);
                 }
                 _handler._filamentView?.SetViewport(0, 0, width, height);
-            }
-
-            var renderHandler = _handler._renderHandler;
-            if (renderHandler != null)
-                renderHandler.Post(UpdateViewport);
-            else
-                UpdateViewport();
+            });
         }
     }
 }
