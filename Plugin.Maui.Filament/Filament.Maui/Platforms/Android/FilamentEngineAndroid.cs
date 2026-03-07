@@ -137,6 +137,8 @@ internal sealed class FilamentEngineAndroid : IFilamentEngine
         _disposed = true;
         // Properly tear down the native Filament engine before releasing the JNI peer.
         _engine.Destroy();
+        // Properly tear down the native Filament engine before releasing the JNI peer.
+        _engine.Destroy();
         _engine.Dispose();
     }
 
