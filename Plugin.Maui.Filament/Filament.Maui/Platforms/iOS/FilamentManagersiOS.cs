@@ -31,10 +31,18 @@ internal sealed class FilamentTransformManageriOS : IFilamentTransformManager
     internal FilamentTransformManageriOS(FLTTransformManager mgr) =>
         _mgr = mgr ?? throw new ArgumentNullException(nameof(mgr));
 
-    public void Create(int entity) => _mgr.CreateComponent((uint)entity);
+    public void Create(int entity)
+    {
+        if (entity < 0)
+            throw new ArgumentOutOfRangeException(nameof(entity), "Entity ID must be non-negative.");
+
+        _mgr.CreateComponent((uint)entity);
+    }
 
     public void SetTransform(int entity, float[] mat4ColumnMajor)
     {
+        if (entity < 0)
+            throw new ArgumentOutOfRangeException(nameof(entity), "Entity ID must be non-negative.");
         if (mat4ColumnMajor is null) throw new ArgumentNullException(nameof(mat4ColumnMajor));
         if (mat4ColumnMajor.Length != 16)
             throw new ArgumentException(
