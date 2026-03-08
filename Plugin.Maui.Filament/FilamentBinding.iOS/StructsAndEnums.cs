@@ -172,21 +172,21 @@ namespace FilamentBinding.iOS
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Blittable struct matching <c>simd_float3</c> (padded to 16 bytes for
-    /// SIMD alignment, as required by the arm64 ABI).
+    /// Blittable struct matching <c>simd_float3</c> (16 bytes total to match
+    /// the SIMD alignment required by the arm64 ABI).
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct VectorFloat3
     {
         public float X;
         public float Y;
         public float Z;
-        /// <summary>Padding to match the 16-byte alignment of <c>simd_float3</c>.</summary>
-        private float _padding;
 
         public VectorFloat3(float x, float y, float z)
         {
-            X = x; Y = y; Z = z; _padding = 0f;
+            X = x;
+            Y = y;
+            Z = z;
         }
     }
 
