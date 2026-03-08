@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Android only until iOS platform bindings/handlers are available (TASK-006+) -->
-    <TargetFrameworks>net10.0-android</TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseMaui>true</UseMaui>
@@ -19,8 +18,8 @@
     <ProjectReference Include="..\FilamentBinding.Android\FilamentBinding.Android.csproj" />
   </ItemGroup>
 
-  <!-- iOS: reference the XCFramework binding project (added when TASK-007 is complete) -->
-  <!-- <ItemGroup Condition="$(TargetFramework.StartsWith('net10.0-ios'))">
+  <!-- iOS: reference the XCFramework binding project -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net10.0-ios'))">
     <ProjectReference Include="..\FilamentBinding.iOS\FilamentBinding.iOS.csproj" />
-  </ItemGroup> -->
+  </ItemGroup>
 </Project>
