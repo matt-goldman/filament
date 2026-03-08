@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>FilamentBinding.iOS</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    FilamentWrapper.xcframework must be built from maui/FilamentWrapper.iOS/ before building
+    this project. Run `./maui/FilamentWrapper.iOS/build.sh` on a macOS machine with Xcode 15+.
+    The resulting xcframework is copied to Native/FilamentWrapper.xcframework by the build script.
+  -->
+  <ItemGroup>
+    <NativeReference Include="Native\FilamentWrapper.xcframework">
+      <Kind>Framework</Kind>
+      <SmartLink>false</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+</Project>
