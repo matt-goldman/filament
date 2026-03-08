@@ -17,4 +17,9 @@
       <SmartLink>false</SmartLink>
     </NativeReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
+    <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
+  </ItemGroup>
 </Project>
