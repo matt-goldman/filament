@@ -1,4 +1,5 @@
 using CoreAnimation;
+using CoreGraphics;
 using Metal;
 using UIKit;
 
@@ -44,6 +45,13 @@ internal sealed class FilamentMetalView : UIView
         var w = (int)(Bounds.Width * ContentScaleFactor);
         var h = (int)(Bounds.Height * ContentScaleFactor);
         if (w > 0 && h > 0)
+        {
+            // DrawableSize must match the physical pixel dimensions so Filament's Metal
+            // backend allocates correctly-sized drawables. Without this, layer.drawableSize
+            // stays at its default (the logical bounds) and produces blurry output on
+            // Retina displays or incorrect resolution after orientation changes.
+            MetalLayer.DrawableSize = new CGSize(w, h);
             ViewportResized?.Invoke(w, h);
+        }
     }
 }
