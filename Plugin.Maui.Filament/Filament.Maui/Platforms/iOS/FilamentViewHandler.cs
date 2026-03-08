@@ -14,16 +14,17 @@ namespace Filament.Maui;
 /// <see cref="IFilamentEngine"/> to the native Metal surface via
 /// <see cref="IFilamentSwapChain"/>.
 /// </summary>
-/// <remarks>
-/// Thread-safety note: <see cref="CADisplayLink"/> fires on <c>NSRunLoop.Main</c>
-/// (the UI thread), so <c>BeginFrame</c>, <c>Render</c>, and <c>EndFrame</c> are
-/// currently called on the main thread. This is acceptable for an initial
-/// implementation but may cause frame drops for complex scenes. For production
-/// use, migrate to a dedicated Metal render thread driven by a
-/// <c>CVDisplayLink</c> or <c>DispatchSource</c> timer, mirroring the Android
-/// handler's <c>HandlerThread</c> pattern.
-/// </remarks>
-public partial class FilamentViewHandler : ViewHandler<FilamentView, FilamentMetalView>
+    /// <remarks>
+    /// Thread-safety note: <see cref="CADisplayLink"/> fires on <c>NSRunLoop.Main</c>
+    /// (the UI thread) and must therefore be treated as a vsync tick only. In
+    /// accordance with the repository's thread-safety rules, Filament entry points
+    /// such as <c>BeginFrame</c>, <c>Render</c>, and <c>EndFrame</c> must not be
+    /// invoked directly on the UI thread. Instead, the display-link callback should
+    /// enqueue work to a dedicated Metal render thread or command queue, typically
+    /// driven by a <c>CVDisplayLink</c> or <c>DispatchSource</c> timer and mirroring
+    /// the Android handler's <c>HandlerThread</c> pattern.
+    /// </remarks>
+    public partial class FilamentViewHandler : ViewHandler<FilamentView, FilamentMetalView>
 {
     private IFilamentSwapChain? _swapChain;
     private IFilamentRenderer? _renderer;
