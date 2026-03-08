@@ -11,12 +11,22 @@
     this project. Run `./maui/FilamentWrapper.iOS/build.sh` on a macOS machine with Xcode 15+.
     The resulting xcframework is copied to Native/FilamentWrapper.xcframework by the build script.
   -->
-  <ItemGroup>
+  <ItemGroup Condition="Exists('Native/FilamentWrapper.xcframework')">
     <NativeReference Include="Native\FilamentWrapper.xcframework">
       <Kind>Framework</Kind>
       <SmartLink>false</SmartLink>
     </NativeReference>
   </ItemGroup>
+
+  <!--
+    Fail early with an actionable message when the xcframework has not been built yet.
+    This prevents a confusing linker error deep into the build.
+  -->
+  <Target Name="CheckFilamentXcframework" BeforeTargets="Build">
+    <Error
+      Condition="!Exists('$(MSBuildThisFileDirectory)Native/FilamentWrapper.xcframework')"
+      Text="FilamentWrapper.xcframework not found in Plugin.Maui.Filament/FilamentBinding.iOS/Native/. Build the xcframework first by running './maui/FilamentWrapper.iOS/build.sh' on a macOS machine with Xcode 15+." />
+  </Target>
 
   <ItemGroup>
     <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
