@@ -32,4 +32,4 @@ Then run `./build.sh` from `maui/FilamentWrapper.iOS/`.
 
 The xcframework is built for two slices:
 - `ios-arm64` — physical iOS devices
-- `ios-arm64_x86_64-simulator` — iOS Simulator (note: arm64 excluded per Filament spec)
+- `ios-x86_64-simulator` — iOS Simulator on Intel Macs (arm64 excluded per Filament spec; see build.sh)

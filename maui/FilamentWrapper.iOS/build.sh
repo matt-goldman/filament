@@ -39,9 +39,10 @@ xcodebuild archive \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
     | xcpretty || true
 
-echo ""
-echo "=== Building FilamentWrapper for iOS Simulator (x86_64) ==="
-# arm64 is excluded for the simulator slice per Filament's CocoaPods spec
+echo "=== Building FilamentWrapper for iOS Simulator ==="
+# Note: arm64 is excluded for the simulator slice per Filament's CocoaPods spec.
+# The resulting simulator slice supports x86_64 (Intel Macs) only.
+# On Apple Silicon Macs, use a physical iOS device or an Intel Mac for simulation.
 xcodebuild archive \
     -scheme FilamentWrapper \
     -project "${SCRIPT_DIR}/FilamentWrapper.xcodeproj" \

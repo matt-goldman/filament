@@ -22,7 +22,6 @@ using namespace filament;
 }
 
 - (void)destroyComponent:(uint32_t)entity {
-    auto i = _mgr->getInstance(utils::Entity::import(entity));
     _mgr->destroy(utils::Entity::import(entity));
 }
 
