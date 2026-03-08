@@ -161,6 +161,7 @@ internal sealed class FilamentEngineiOS : IFilamentEngine
         if (_disposed) return;
         _disposed = true;
         _engine.Destroy();
+        _engine.Dispose();
     }
 
     private void ThrowIfDisposed()
