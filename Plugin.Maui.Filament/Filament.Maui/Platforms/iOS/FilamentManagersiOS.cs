@@ -5,8 +5,7 @@ namespace Filament.Maui;
 /// <summary>
 /// iOS implementation of <see cref="IFilamentEntityManager"/>.
 /// Wraps <see cref="FLTEntityManager"/> from the iOS binding.
-/// Entity IDs are <c>uint</c> in the FLT* API and <c>int</c> in the cross-platform interface;
-/// the cast is safe for entity IDs less than 2³¹.
+/// Entity IDs are <c>uint</c> in the FLT* API and <c>int</c> in the cross-platform interface.
 /// </summary>
 internal sealed class FilamentEntityManageriOS : IFilamentEntityManager
 {
@@ -15,9 +14,21 @@ internal sealed class FilamentEntityManageriOS : IFilamentEntityManager
     internal FilamentEntityManageriOS(FLTEntityManager mgr) =>
         _mgr = mgr ?? throw new ArgumentNullException(nameof(mgr));
 
-    public int Create() => (int)_mgr.Create();
+    public int Create()
+    {
+        uint rawId = _mgr.Create();
+        if (rawId > (uint)int.MaxValue)
+            throw new OverflowException(
+                $"FLTEntityManager returned an entity ID ({rawId}) that exceeds int.MaxValue and cannot be represented in the cross-platform interface.");
+        return (int)rawId;
+    }
 
-    public void Destroy(int entity) => _mgr.Destroy((uint)entity);
+    public void Destroy(int entity)
+    {
+        if (entity < 0)
+            throw new ArgumentOutOfRangeException(nameof(entity), "Entity ID must be non-negative.");
+        _mgr.Destroy((uint)entity);
+    }
 }
 
 /// <summary>
