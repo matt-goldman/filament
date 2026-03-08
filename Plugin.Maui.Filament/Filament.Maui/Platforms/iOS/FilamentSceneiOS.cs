@@ -14,10 +14,21 @@ internal sealed class FilamentSceneiOS : IFilamentScene
         _scene = scene ?? throw new ArgumentNullException(nameof(scene));
 
     // Entity IDs are uint in the FLT* API and int in the cross-platform interface.
-    public void AddEntity(int entity) => _scene.AddEntity((uint)entity);
+    public void AddEntity(int entity)
+    {
+        if (entity < 0)
+            throw new ArgumentOutOfRangeException(nameof(entity), "Entity ID must be non-negative.");
 
-    public void RemoveEntity(int entity) => _scene.RemoveEntity((uint)entity);
+        _scene.AddEntity((uint)entity);
+    }
 
+    public void RemoveEntity(int entity)
+    {
+        if (entity < 0)
+            throw new ArgumentOutOfRangeException(nameof(entity), "Entity ID must be non-negative.");
+
+        _scene.RemoveEntity((uint)entity);
+    }
     public void SetSkybox(IFilamentSkybox? skybox)
     {
         _scene.SetSkybox(skybox is null ? null : ((FilamentSkyboxiOS)skybox)._skybox);
