@@ -20,14 +20,12 @@ internal sealed class FilamentSceneiOS : IFilamentScene
 
     public void SetSkybox(IFilamentSkybox? skybox)
     {
-        if (skybox is null) return;
-        _scene.SetSkybox(((FilamentSkyboxiOS)skybox)._skybox);
+        _scene.SetSkybox(skybox is null ? null : ((FilamentSkyboxiOS)skybox)._skybox);
     }
 
     public void SetIndirectLight(IFilamentIndirectLight? ibl)
     {
-        if (ibl is null) return;
-        _scene.SetIndirectLight(((FilamentIndirectLightiOS)ibl)._ibl);
+        _scene.SetIndirectLight(ibl is null ? null : ((FilamentIndirectLightiOS)ibl)._ibl);
     }
 
     /// <remarks>Destroyed via <see cref="IFilamentEngine.DestroyScene"/>.</remarks>
