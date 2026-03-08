@@ -8,7 +8,23 @@
 #import "FLTRenderableManager.h"
 #import "FLTLightManager.h"
 #import "FLTEntityManager.h"
+#import "FLTTexture.h"
+#import "FLTVertexBuffer.h"
+#import "FLTIndexBuffer.h"
+#import "FLTMaterial.h"
+#import "FLTMaterialInstance.h"
+#import "FLTRenderTarget.h"
+#import "FLTIndirectLight.h"
+#import "FLTSkybox.h"
 #include <filament/Engine.h>
+#include <filament/Texture.h>
+#include <filament/VertexBuffer.h>
+#include <filament/IndexBuffer.h>
+#include <filament/Material.h>
+#include <filament/MaterialInstance.h>
+#include <filament/RenderTarget.h>
+#include <filament/IndirectLight.h>
+#include <filament/Skybox.h>
 #include <utils/EntityManager.h>
 using namespace filament;
 
@@ -44,7 +60,8 @@ using namespace filament;
 
 - (FLTCamera *)createCamera {
     utils::Entity camEntity = utils::EntityManager::get().create();
-    return [[FLTCamera alloc] initWithNative:_engine->createCamera(camEntity) engine:self];
+    Camera *cam = _engine->createCamera(camEntity);
+    return [[FLTCamera alloc] initWithNative:cam entity:camEntity.getId() engine:self];
 }
 
 - (FLTSwapChain *)createSwapChainFromLayer:(void *)nativeLayer {
@@ -53,11 +70,42 @@ using namespace filament;
     return [[FLTSwapChain alloc] initWithNative:sc engine:self];
 }
 
-- (void)destroyRenderer:(FLTRenderer *)r  { _engine->destroy((Renderer *)[r nativeRenderer]); }
-- (void)destroyScene:(FLTScene *)s        { _engine->destroy((Scene *)[s nativeScene]); }
-- (void)destroyView:(FLTView *)v          { _engine->destroy((View *)[v nativeView]); }
-- (void)destroyCamera:(FLTCamera *)c      { _engine->destroy((Camera *)[c nativeCamera]); }
+- (void)destroyRenderer:(FLTRenderer *)r   { _engine->destroy((Renderer *)[r nativeRenderer]); }
+- (void)destroyScene:(FLTScene *)s         { _engine->destroy((Scene *)[s nativeScene]); }
+- (void)destroyView:(FLTView *)v           { _engine->destroy((View *)[v nativeView]); }
 - (void)destroySwapChain:(FLTSwapChain *)sc { _engine->destroy((SwapChain *)[sc nativeSwapChain]); }
+
+- (void)destroyCamera:(FLTCamera *)c {
+    // Cameras are components: use destroyCameraComponent(entity), then destroy the entity.
+    utils::Entity entity = utils::Entity::import([c entityId]);
+    _engine->destroyCameraComponent(entity);
+    utils::EntityManager::get().destroy(entity);
+}
+
+- (void)destroyTexture:(FLTTexture *)texture {
+    _engine->destroy((Texture *)[texture nativeTexture]);
+}
+- (void)destroyVertexBuffer:(FLTVertexBuffer *)vb {
+    _engine->destroy((VertexBuffer *)[vb nativeVertexBuffer]);
+}
+- (void)destroyIndexBuffer:(FLTIndexBuffer *)ib {
+    _engine->destroy((IndexBuffer *)[ib nativeIndexBuffer]);
+}
+- (void)destroyMaterial:(FLTMaterial *)mat {
+    _engine->destroy((Material *)[mat nativeMaterial]);
+}
+- (void)destroyMaterialInstance:(FLTMaterialInstance *)mi {
+    _engine->destroy((MaterialInstance *)[mi nativeMaterialInstance]);
+}
+- (void)destroyRenderTarget:(FLTRenderTarget *)rt {
+    _engine->destroy((RenderTarget *)[rt nativeRenderTarget]);
+}
+- (void)destroyIndirectLight:(FLTIndirectLight *)il {
+    _engine->destroy((IndirectLight *)[il nativeIndirectLight]);
+}
+- (void)destroySkybox:(FLTSkybox *)sky {
+    _engine->destroy((Skybox *)[sky nativeSkybox]);
+}
 
 - (void)flushAndWait { _engine->flushAndWait(); }
 

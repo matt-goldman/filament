@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 @class FLTRenderer, FLTScene, FLTView, FLTCamera, FLTSwapChain;
 @class FLTTransformManager, FLTRenderableManager, FLTLightManager, FLTEntityManager;
+@class FLTTexture, FLTVertexBuffer, FLTIndexBuffer;
+@class FLTMaterial, FLTMaterialInstance, FLTRenderTarget, FLTIndirectLight, FLTSkybox;
 
 typedef NS_ENUM(NSInteger, FLTBackend) {
     FLTBackendDefault  = 0,
@@ -23,8 +25,17 @@ typedef NS_ENUM(NSInteger, FLTBackend) {
 - (void)destroyRenderer:(FLTRenderer *)renderer;
 - (void)destroyScene:(FLTScene *)scene;
 - (void)destroyView:(FLTView *)view;
+/// Destroys the camera component and the entity that was created with createCamera.
 - (void)destroyCamera:(FLTCamera *)camera;
 - (void)destroySwapChain:(FLTSwapChain *)swapChain;
+- (void)destroyTexture:(FLTTexture *)texture;
+- (void)destroyVertexBuffer:(FLTVertexBuffer *)vertexBuffer;
+- (void)destroyIndexBuffer:(FLTIndexBuffer *)indexBuffer;
+- (void)destroyMaterial:(FLTMaterial *)material;
+- (void)destroyMaterialInstance:(FLTMaterialInstance *)materialInstance;
+- (void)destroyRenderTarget:(FLTRenderTarget *)renderTarget;
+- (void)destroyIndirectLight:(FLTIndirectLight *)indirectLight;
+- (void)destroySkybox:(FLTSkybox *)skybox;
 - (void)flushAndWait;
 - (FLTTransformManager *)transformManager;
 - (FLTRenderableManager *)renderableManager;

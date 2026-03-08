@@ -32,4 +32,11 @@ using namespace filament;
     _renderer->endFrame();
 }
 
+- (void)setClearColorRed:(float)r green:(float)g blue:(float)b alpha:(float)a {
+    Renderer::ClearOptions opts = _renderer->getClearOptions();
+    opts.clearColor = {r, g, b, a};
+    opts.clear = true;
+    _renderer->setClearOptions(opts);
+}
+
 @end

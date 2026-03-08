@@ -15,6 +15,7 @@ typedef NS_ENUM(NSUInteger, FLTIndexType) {
 @interface FLTIndexBuffer : NSObject
 + (FLTIndexBufferBuilder *)builder;
 - (void *)nativeIndexBuffer;
-/// Upload index data. Data must remain valid until the GPU consumes it (use EngineFlushAndWait).
+/// Upload index data. The contents of `data` are copied immediately and only need to remain
+/// valid for the duration of this call.
 - (void)setBufferWithEngine:(FLTEngine *)engine data:(NSData *)data;
 @end

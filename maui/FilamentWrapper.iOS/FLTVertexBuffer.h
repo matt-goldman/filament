@@ -58,6 +58,7 @@ typedef NS_ENUM(NSUInteger, FLTVertexAttributeType) {
 @interface FLTVertexBuffer : NSObject
 + (FLTVertexBufferBuilder *)builder;
 - (void *)nativeVertexBuffer;
-/// Upload vertex data. Data must remain valid until the GPU consumes it (use EngineFlushAndWait).
+/// Upload vertex data. The contents of `data` are copied immediately and only need to remain
+/// valid for the duration of this call.
 - (void)setBufferAtIndex:(uint8_t)bufferIndex engine:(FLTEngine *)engine data:(NSData *)data;
 @end

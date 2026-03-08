@@ -1,21 +1,25 @@
 #import "FLTCamera.h"
 #include <filament/Camera.h>
 #include <math/vec3.h>
+#include <utils/Entity.h>
 using namespace filament;
 
 @implementation FLTCamera {
     Camera *_camera;
+    uint32_t _entityId;
 }
 
-- (instancetype)initWithNative:(void *)native engine:(FLTEngine *)engine {
+- (instancetype)initWithNative:(void *)native entity:(uint32_t)entity engine:(FLTEngine *)engine {
     self = [super init];
     if (self) {
         _camera = (Camera *)native;
+        _entityId = entity;
     }
     return self;
 }
 
 - (void *)nativeCamera { return _camera; }
+- (uint32_t)entityId   { return _entityId; }
 
 - (void)setProjectionFov:(double)fovDegrees aspect:(double)aspect near:(double)near far:(double)far {
     _camera->setProjection(fovDegrees, aspect, near, far, Camera::Fov::VERTICAL);

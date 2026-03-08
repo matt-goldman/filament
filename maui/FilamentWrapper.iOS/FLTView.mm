@@ -31,10 +31,6 @@ using namespace filament;
     _view->setViewport({left, bottom, width, height});
 }
 
-- (void)setClearColorRed:(float)r green:(float)g blue:(float)b alpha:(float)a {
-    _view->setBackgroundColor({r, g, b, a});
-}
-
 - (void)setPostProcessingEnabled:(BOOL)enabled {
     _view->setPostProcessingEnabled(enabled);
 }

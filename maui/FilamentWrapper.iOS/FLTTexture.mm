@@ -14,7 +14,7 @@ static Texture::InternalFormat mapTextureFormat(FLTTextureFormat fmt) {
         case FLTTextureFormatRGBA8:   return Texture::InternalFormat::RGBA8;
         case FLTTextureFormatRGB8:    return Texture::InternalFormat::RGB8;
         case FLTTextureFormatRGBA16F: return Texture::InternalFormat::RGBA16F;
-        case FLTTextureFormatRGB16F:  return Texture::InternalFormat::R11F_G11F_B10F;
+        case FLTTextureFormatRGB16F:  return Texture::InternalFormat::RGB16F;
         case FLTTextureFormatR8:      return Texture::InternalFormat::R8;
         case FLTTextureFormatDEPTH32F: return Texture::InternalFormat::DEPTH32F;
         default:                      return Texture::InternalFormat::RGBA8;
@@ -100,10 +100,9 @@ static Texture::Sampler mapSamplerType(FLTTextureSamplerType s) {
 
 - (void *)nativeTexture { return _texture; }
 
-- (void)setImage:(FLTEngine *)engine level:(NSUInteger)level data:(NSData *)data
-           width:(uint32_t)width height:(uint32_t)height {
-    // Copy data into a buffer Filament can consume asynchronously.
-    // The copy is freed by the callback when the GPU is done.
+- (void)setImage:(FLTEngine *)engine level:(NSUInteger)level data:(NSData *)data {
+    // Copy data into a heap buffer that Filament frees via the callback when the GPU is done.
+    // The NSData argument can be released by the caller immediately after this call returns.
     size_t dataSize = data.length;
     void *copy = malloc(dataSize);
     memcpy(copy, data.bytes, dataSize);

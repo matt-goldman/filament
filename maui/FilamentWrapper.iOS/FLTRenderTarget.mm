@@ -24,9 +24,9 @@ static RenderTarget::AttachmentPoint mapAttachment(FLTAttachmentPoint pt) {
 // ---- FLTRenderTargetBuilder ----
 
 @interface FLTRenderTargetBuilder ()
-@property (nonatomic, strong) NSMutableArray *textures;
-@property (nonatomic, strong) NSMutableArray *mipLevels;
-@property (nonatomic, strong) NSMutableArray *attachmentPoints;
+// Each entry holds the texture, attachment point, and optional mip level for one attachment.
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FLTTexture *> *texturesByAttachment;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSNumber *> *mipLevelsByAttachment;
 @end
 
 @implementation FLTRenderTargetBuilder
@@ -34,36 +34,33 @@ static RenderTarget::AttachmentPoint mapAttachment(FLTAttachmentPoint pt) {
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _textures = [NSMutableArray array];
-        _mipLevels = [NSMutableArray array];
-        _attachmentPoints = [NSMutableArray array];
+        _texturesByAttachment = [NSMutableDictionary dictionary];
+        _mipLevelsByAttachment = [NSMutableDictionary dictionary];
     }
     return self;
 }
 
 - (FLTRenderTargetBuilder *)texture:(FLTTexture *)texture
                          attachment:(FLTAttachmentPoint)attachment {
-    [_textures addObject:texture];
-    [_attachmentPoints addObject:@(attachment)];
+    _texturesByAttachment[@(attachment)] = texture;
     return self;
 }
 
 - (FLTRenderTargetBuilder *)mipLevel:(uint8_t)level
                           attachment:(FLTAttachmentPoint)attachment {
-    // Store mip level for the matching attachment. For simplicity, append in order.
-    [_mipLevels addObject:@(level)];
+    _mipLevelsByAttachment[@(attachment)] = @(level);
     return self;
 }
 
 - (FLTRenderTarget *)buildWithEngine:(FLTEngine *)engine {
     RenderTarget::Builder builder;
-    for (NSUInteger i = 0; i < _textures.count; i++) {
-        FLTTexture *tex = _textures[i];
-        FLTAttachmentPoint ap = (FLTAttachmentPoint)[_attachmentPoints[i] unsignedIntegerValue];
+    for (NSNumber *apKey in _texturesByAttachment) {
+        FLTAttachmentPoint ap = (FLTAttachmentPoint)[apKey unsignedIntegerValue];
+        FLTTexture *tex = _texturesByAttachment[apKey];
         builder.texture(mapAttachment(ap), (Texture *)[tex nativeTexture]);
-        if (i < _mipLevels.count) {
-            uint8_t mip = (uint8_t)[_mipLevels[i] unsignedIntValue];
-            builder.mipLevel(mapAttachment(ap), mip);
+        NSNumber *mipNum = _mipLevelsByAttachment[apKey];
+        if (mipNum) {
+            builder.mipLevel(mapAttachment(ap), (uint8_t)[mipNum unsignedCharValue]);
         }
     }
     RenderTarget *rt = builder.build(*[engine nativeEngine]);

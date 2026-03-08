@@ -39,7 +39,7 @@ typedef NS_ENUM(NSUInteger, FLTTextureSamplerType) {
 @interface FLTTexture : NSObject
 + (FLTTextureBuilder *)builder;
 - (void *)nativeTexture;
-/// Upload pixel data to the specified mip level. Data must remain valid until the GPU consumes it.
-- (void)setImage:(FLTEngine *)engine level:(NSUInteger)level data:(NSData *)data
-           width:(uint32_t)width height:(uint32_t)height;
+/// Upload pixel data to the specified mip level. The contents of `data` are copied immediately
+/// and only need to remain valid for the duration of this call.
+- (void)setImage:(FLTEngine *)engine level:(NSUInteger)level data:(NSData *)data;
 @end

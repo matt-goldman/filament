@@ -362,16 +362,16 @@
 				EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../include",
-					"$(SRCROOT)/../../include/filament",
-					"$(SRCROOT)/../../include/backend",
-					"$(SRCROOT)/../../include/utils",
-					"$(SRCROOT)/../../include/math",
+					"$(SRCROOT)/../../../third_party/filament-ios/include",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/filament",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/backend",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/utils",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/math",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/FilamentWrapper-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/../../lib/universal",
+					"$(SRCROOT)/../../../third_party/filament-ios/lib/universal",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -406,16 +406,16 @@
 				EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../include",
-					"$(SRCROOT)/../../include/filament",
-					"$(SRCROOT)/../../include/backend",
-					"$(SRCROOT)/../../include/utils",
-					"$(SRCROOT)/../../include/math",
+					"$(SRCROOT)/../../../third_party/filament-ios/include",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/filament",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/backend",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/utils",
+					"$(SRCROOT)/../../../third_party/filament-ios/include/math",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/FilamentWrapper-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/../../lib/universal",
+					"$(SRCROOT)/../../../third_party/filament-ios/lib/universal",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",

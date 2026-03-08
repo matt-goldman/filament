@@ -3,6 +3,7 @@
 #include <filament/MaterialInstance.h>
 #include <filament/Texture.h>
 #include <filament/TextureSampler.h>
+#include <math/vec4.h>
 using namespace filament;
 
 @implementation FLTMaterialInstance {
