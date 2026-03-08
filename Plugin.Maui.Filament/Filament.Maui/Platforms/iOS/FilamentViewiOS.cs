@@ -19,8 +19,16 @@ internal sealed class FilamentViewiOS : IFilamentView
     public void SetCamera(IFilamentCamera camera) =>
         _view.SetCamera(((FilamentCameraiOS)camera)._camera);
 
-    public void SetViewport(int left, int bottom, int width, int height) =>
+    public void SetViewport(int left, int bottom, int width, int height)
+    {
+        if (width < 0)
+            throw new ArgumentOutOfRangeException(nameof(width), "Viewport width must be non-negative.");
+
+        if (height < 0)
+            throw new ArgumentOutOfRangeException(nameof(height), "Viewport height must be non-negative.");
+
         _view.SetViewport(left, bottom, (uint)width, (uint)height);
+    }
 
     public void SetPostProcessingEnabled(bool enabled) =>
         _view.SetPostProcessingEnabled(enabled);
