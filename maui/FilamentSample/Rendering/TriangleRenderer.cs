@@ -3,7 +3,7 @@ using Filament.Maui;
 namespace FilamentSample;
 
 /// <summary>
-/// Creates a single colored triangle entity in the Filament scene.
+/// Creates a triangle entity with a colored material in the Filament scene.
 /// Uses platform-compiled materials loaded from app resources.
 /// </summary>
 /// <remarks>
@@ -14,8 +14,15 @@ namespace FilamentSample;
 ///   <item><description><c>Resources/Raw/materials/default.mat.ios</c> — Metal</description></item>
 /// </list>
 /// See <c>README.md</c> for compilation instructions.
-/// If the compiled material files are absent, the renderer logs a diagnostic and the
-/// entity is still added to the scene so the clear-color background continues to render.
+/// <para>
+/// Full renderable construction (vertex + index buffer geometry) requires builder APIs
+/// not yet exposed in <see cref="IFilamentRenderableManager"/>.
+/// On Android the material instance is assigned via <c>SetMaterialInstanceAt</c> and the
+/// entity is added to the scene.
+/// On iOS, runtime material assignment is not supported via the current cross-platform
+/// interface (<c>FLTRenderableManagerBuilder.MaterialAtIndex</c> is needed but not yet
+/// exposed), so the entity is not added to the scene; the clear-color background still renders.
+/// </para>
 /// </remarks>
 internal sealed class TriangleRenderer
 {
@@ -23,30 +30,20 @@ internal sealed class TriangleRenderer
     private IFilamentMaterial? _material;
     private IFilamentMaterialInstance? _matInstance;
 
-    // Interleaved vertex data: position (xyz) + color (rgba)
-    private static readonly float[] TriangleVertices =
-    {
-        //  X       Y      Z      R     G     B     A
-         0.0f,  0.5f,  0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f, 1.0f,
-    };
-
-    private static readonly ushort[] TriangleIndices = { 0, 1, 2 };
-
     /// <summary>
     /// Initialises a TriangleRenderer with pre-loaded material bytes.
     /// </summary>
     /// <param name="engine">The active Filament engine.</param>
     /// <param name="scene">The scene to add the entity to.</param>
     /// <param name="materialBytes">
-    /// Compiled <c>.filamat</c> binary for the current platform.
-    /// Pass an empty array when the material has not yet been compiled — the entity
-    /// will still be added to the scene so the background colour renders.
+    /// Compiled <c>.filamat</c> binary for the current platform, or an empty array when
+    /// the material has not yet been compiled (the entity will not be added to the scene).
     /// </param>
     public TriangleRenderer(IFilamentEngine engine, IFilamentScene scene, byte[] materialBytes)
     {
         _entity = engine.EntityManager.Create();
+
+        bool renderableReady = false;
 
         if (materialBytes.Length > 0)
         {
@@ -54,14 +51,22 @@ internal sealed class TriangleRenderer
             {
                 _material = FilamentMaterialLoader.LoadMaterial(engine, materialBytes);
                 _matInstance = _material.CreateInstance();
+
+                // SetMaterialInstanceAt is only supported on Android via the current
+                // cross-platform interface.  On iOS, materials must be assigned at
+                // renderable construction time using FLTRenderableManagerBuilder.MaterialAtIndex(),
+                // which is not yet exposed in IFilamentRenderableManager.
+#if ANDROID
                 engine.RenderableManager.SetMaterialInstanceAt(_entity, 0, _matInstance);
+                renderableReady = true;
+#endif
             }
             catch (Exception ex)
             {
                 // Material load failures are non-fatal: the scene background still renders.
                 // Compile the .matc source with matc (see README.md) to enable the triangle.
                 System.Diagnostics.Debug.WriteLine(
-                    $"[TriangleRenderer] Material load failed — triangle will not render: {ex.Message}");
+                    $"[TriangleRenderer] Material load failed — entity will not be added to the scene: {ex.Message}");
             }
         }
         else
@@ -70,7 +75,9 @@ internal sealed class TriangleRenderer
                 "[TriangleRenderer] Material bytes are empty — compile default.matc with matc (see README.md).");
         }
 
-        scene.AddEntity(_entity);
+        // Only add the entity to the scene once its renderable component is fully configured.
+        if (renderableReady)
+            scene.AddEntity(_entity);
     }
 
     public void Dispose(IFilamentEngine engine)

@@ -6,8 +6,6 @@
         android:roundIcon="@mipmap/appicon_round"
         android:supportsRtl="true">
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Require at least OpenGL ES 3.0 for Filament -->
     <uses-feature android:glEsVersion="0x00030000" android:required="true" />
 </manifest>

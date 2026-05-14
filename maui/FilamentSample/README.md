@@ -73,9 +73,9 @@ MainPage.xaml.cs          ← MAUI page; creates engine, scene, camera; responds
 
 ### Thread model
 
-- `OnAppearing` creates the engine and scene on the **UI thread** (initialization only).
-- `FilamentViewHandler` marshals all frame rendering to a **dedicated render thread** automatically.
-- `FrameRendering` event is raised on the render thread — do not call MAUI/UI APIs inside the handler.
+- `OnAppearing` creates the engine, scene, and camera on the **UI thread** before the render loop starts (initialization only; no render thread is active yet).
+- On **Android**: `FilamentViewHandler` dispatches frame rendering to a dedicated `HandlerThread`; `FrameRendering` is raised on that thread — do not call MAUI/UI APIs inside the handler.
+- On **iOS**: `FilamentViewHandler` uses `CADisplayLink` driven by `NSRunLoop.Main`; `FrameRendering` is raised on the **UI thread** — do not call non-thread-safe rendering APIs from non-UI-thread contexts.
 - `OnDisappearing` sets `Engine = null` first, waits for the render loop to stop, then destroys resources.
 
 ## Acceptance Criteria
