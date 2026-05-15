@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
+    <UseMaui>true</UseMaui>
+    <RootNamespace>FilamentSample</RootNamespace>
+    <ApplicationId>com.example.filamentsample</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Suppress validation for MAUI implicit package references so CI can build without workload -->
+    <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+  </PropertyGroup>
+
+  <!-- App icon and splash screen -->
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1E1E2E" />
+  </ItemGroup>
+
+  <!-- Reference Filament.Maui cross-platform library -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\Plugin.Maui.Filament\Filament.Maui\Filament.Maui.csproj" />
+  </ItemGroup>
+
+  <!-- Platform-compiled Filament material assets -->
+  <ItemGroup>
+    <MauiAsset Include="Resources\Raw\materials\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

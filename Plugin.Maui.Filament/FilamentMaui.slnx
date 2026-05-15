@@ -3,4 +3,5 @@
   <Project Path="Filament.Maui/Filament.Maui.csproj" />
   <Project Path="FilamentBinding.Android/FilamentBinding.Android.csproj" />
   <Project Path="FilamentBinding.iOS/FilamentBinding.iOS.csproj" />
+  <Project Path="../maui/FilamentSample/FilamentSample.csproj" />
 </Solution>
